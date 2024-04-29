@@ -41,7 +41,7 @@ namespace Лаба12_часть4
             return number; //ф-ция принимает значение введенного корректного числа
         }
 
-        static HandTool[] MakeInstrumentList()
+        static HandTool[] MakeInstrumentList() //метод для заполнения массива list
         {
             int size = InputIntNumber("введите ёмкость массива");
             HandTool[] list = new HandTool[size];
@@ -54,28 +54,28 @@ namespace Лаба12_часть4
             return list;
         }
 
-        static void DeleteElement(MyCollection<HandTool> table)
+        static void DeleteElement(MyCollection<HandTool> table) //метод для удаления элемента из коллекции
         {
             HandTool tool = new HandTool();
             Console.WriteLine("Введите элемент, который нужно найти и удалить");
             tool.Init();
-            if (table.Contains(tool))
+            if (table.Contains(tool)) //содержится ли элемент в коллекции
             {
-                table.RemoveData(tool);
-                if (table.Count == 0) Console.WriteLine("В ходе удаления была получена пустая таблица");
+                table.RemoveData(tool); //если да, то удаляем его
+                if (table.Count == 0) Console.WriteLine("В ходе удаления была получена пустая таблица"); //если кол-во элементов становится равно нулю, выводим соответствующее сообщение
             }
             else
-                throw new Exception("Элемент не найден в таблице. Удаление невозможно");
+                throw new Exception("Элемент не найден в таблице. Удаление невозможно"); //если такой элемент не найден, выдаем ошибку
             Console.WriteLine("Удаление выполнено");
         }
 
         static void Main(string[] args)
         {
-            MyCollection<HandTool> collection = new MyCollection<HandTool>();
-            HandTool[] list = new HandTool[0];
+            MyCollection<HandTool> collection = new MyCollection<HandTool>(); //формируем коллекцию
+            HandTool[] list = new HandTool[0]; //формируем вспомогательный массив 
             sbyte answer1; //объявление переменных, которые отвечают за выбранный пункт меню
             do
-            {
+            { //меню
                 Console.WriteLine("1. Сформировать хеш-таблицу с помощью ввода длины");
                 Console.WriteLine("2. Сформировать хеш-таблицу, копируя элементы массива T[]");
                 Console.WriteLine("3. Вывести хеш-таблицу");
@@ -87,7 +87,7 @@ namespace Лаба12_часть4
                 Console.WriteLine("9. Проверить, содержится ли элемент в коллекции");
                 Console.WriteLine("10. Завершить работу программы");
 
-                answer1 = InputSbyteNumber();
+                answer1 = InputSbyteNumber(); //считываем выбранный пункт меню
 
                 switch (answer1)
                 {
@@ -110,7 +110,7 @@ namespace Лаба12_часть4
                         {
                             try
                             {
-                                list = MakeInstrumentList();
+                                list = MakeInstrumentList(); 
                                 collection = new MyCollection<HandTool>(list);
                                 Console.WriteLine("Хеш-таблица сформирована");
                             }
