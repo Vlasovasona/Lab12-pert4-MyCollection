@@ -1,276 +1,140 @@
-using Лаба12_часть3_Дерево;
+using Лаба12_часть2;
+using Лаба12_часть4;
 using Library_10;
-
-namespace Tree_Tests
+using System.Collections.Generic;
+namespace MyCollection_Test
 {
     [TestClass]
-    public class UnitTest1
+    public class Test_MyCollection
     {
-        //блок ошибок
+        //тестирование конструкторов 
         [TestMethod]
-        public void Print_EmptyTree_Exception() //метод проверки возникновения ошибки при попытке печати пустого дерева
+        public void Test_ConstuctorWithoutParams() //тест проверка на создание пустого объекта MyCollection
         {
-            MyTree<Instrument> tree = new MyTree<Instrument>();
+            MyCollection<Instrument> collection = new MyCollection<Instrument>();
+            Assert.AreEqual(0, collection.Count);
+        }
+
+        [TestMethod]
+        public void Test_Constructor_CollectionT() //проверка создания хеш-таблицы с помощью переноса элементов из сформировавнного массива
+        {
+            Instrument[] list = new Instrument[5]; //создаем массив, содержащий объекты типа Instrument и заполняем его случайным способом
+            for (int i = 0; i < list.Length; i++)
+            {
+                Instrument tool = new Instrument();
+                tool.RandomInit();
+                list[i] = tool;
+            }
+
+            MyCollection<Instrument> collection = new MyCollection<Instrument>(list); //создаем коллекцию на основе созданного массива
+            Assert.AreEqual(collection.Count, list.Length); //проверяем чтобы обе коллекции были одинаковые по длине
+            Assert.IsTrue(collection.Contains(list[2])); //проверяем чтобы какой-нибудь элемент из массива содержался в новой коллекции. Должно вернуть true
+        }
+
+        [TestMethod]
+        public void Test_Constructor_Length() //проверка конструктора, формаирующего коллекцию по ее длине
+        {
+            MyCollection<Instrument> collection = new MyCollection<Instrument>(5); //создаем коллекцию с помощью ввода ее длины
+            Assert.AreEqual(collection.Count, 5); //проверяем чтобы коллекция содержала 5 элементов
+        }
+        //тестирование конструкторов завершено
+
+        //тестирование нумератора
+        [TestMethod]
+        public void GetEnumerator_WhenCollectionHasItems_ShouldEnumerateAllItems() //проверка нумератора для заполненной коллекции
+        {
+            MyCollection<Instrument> collection = new MyCollection<Instrument>(1); //создаем коллекцию и заполняем ее элементами
+            Instrument tool1 = new Instrument("Q", 1);
+            Instrument tool2 = new Instrument("W", 12);
+            Instrument tool3 = new Instrument("E", 123);
+            PointHash<Instrument> firstElement = collection.GetFirstValue();
+
+            collection.Add(tool1);
+            collection.Add(tool2);
+            collection.Add(tool3);
+            collection.Remove(firstElement.Data);
+
+            Instrument[] result = new Instrument[3];
+            int index = 0;
+            foreach (Instrument item in collection)
+            {
+                result[index] = item;
+                index++;
+            }
+            CollectionAssert.AreEqual(new Instrument[] { tool1, tool2, tool3 }, result) ;
+        }
+
+        [TestMethod]
+        public void GetEnumerator_CollectionHasRemovedElement() //проверка нумератора для коллекции, из которой был удален элемент
+        {
+            MyCollection<Instrument> collection = new MyCollection<Instrument>(1); //создаем коллекцию и заполняем ее элементами
+            Instrument tool1 = new Instrument("Q", 1);
+            Instrument tool2 = new Instrument("W", 12);
+            Instrument tool3 = new Instrument("E", 123);
+            PointHash<Instrument> firstElement = collection.GetFirstValue();
+
+            collection.Add(tool1);
+            collection.Add(tool2);
+            collection.Add(tool3);
+
+            collection.Remove(tool2);
+            collection.Remove(firstElement.Data);
+
+            Instrument[] result = new Instrument[2];
+            int index = 0;
+            foreach (Instrument item in collection)
+            {
+                result[index] = item;
+                index++;
+            }
+
+            CollectionAssert.AreEqual(new Instrument[] { tool1, tool3 }, result);
+        }
+        //тестирование нумератора завершено
+
+        //тестирование ICollection
+        [TestMethod]
+        public void ICollection_CopyTo() //проверка метода copyTo
+        {
+            MyCollection<Instrument> collection = new MyCollection<Instrument>(5); //создаем коллекцию и заполняем ее элементами
+            Instrument[] list = new Instrument[5];
+            collection.CopyTo(list, 0);
+            PointHash<Instrument> value = collection.GetFirstValue();
+            Assert.AreEqual(value.Data, list[0]);
+        }
+
+        [TestMethod]
+        public void ICollection_Count() //проверка Count
+        {
+            MyCollection<Instrument> collection = new MyCollection<Instrument>(5); //создаем коллекцию и заполняем ее элементами
+            Instrument[] list = new Instrument[5];
+            collection.CopyTo(list, 0);
+            Assert.AreEqual(collection.Count, list.Length);
+        }
+        //тестирование ICollection
+
+        //блок Exception 
+        [TestMethod]
+        public void ICollection_CopyTo_ExceptionIndexOutsideOfListLength() //проверка исключения при вводе некорректного индекса
+        {
+            MyCollection<Instrument> collection = new MyCollection<Instrument>(5); //создаем коллекцию и заполняем ее элементами
+            Instrument[] list = new Instrument[5];
             Assert.ThrowsException<Exception>(() =>
             {
-                tree.ShowTree();
+                collection.CopyTo(list, 6);
             });
         }
 
         [TestMethod]
-        public void Print_FindMinElement_InEmptyTree_Exception() //метод проверки возникновения ошибки при попытке найти минимальный элемент в пустой дереве
+        public void ICollection_CopyTo_ExceptionNotEnoughListLength() //проверка исключения при попытке скопировать элементы в массив при нехватке места для элементов в массиве
         {
-            MyTree<Instrument> tree = new MyTree<Instrument>();
+            MyCollection<Instrument> collection = new MyCollection<Instrument>(5); //создаем коллекцию и заполняем ее элементами
+            Instrument[] list = new Instrument[5];
             Assert.ThrowsException<Exception>(() =>
             {
-                tree.FindMin();
+                collection.CopyTo(list, 2);
             });
         }
-        //блок ошибок закончен
 
-        //проверка конструктора дерева
-        [TestMethod]
-        public void CreateTree_CheckCount_Test() //проверка работы Count
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>(5);
-            Assert.AreEqual(5, tree.Count);
-        }
-
-        //проверка класса Point_Tree
-
-        [TestMethod]
-        public void CreatePointTree_CheckNull_Test() //проверка 
-        {
-            Point_Tree<Instrument> p = new Point_Tree<Instrument>();
-            Assert.IsNull(p.Left);
-        }
-
-        [TestMethod]
-        public void Point_ToString_NotNull_Test()
-        {
-            HandTool tool = new HandTool();
-            Point_Tree<Library_10.Instrument> p = new Point_Tree<Library_10.Instrument>(tool);
-            Assert.AreEqual(p.ToString(), tool.ToString());
-        }
-
-        [TestMethod]
-        public void Point_ToString_Null_Test()
-        {
-            HandTool tool = new HandTool();
-            tool = null;
-            Point_Tree<Library_10.Instrument> p = new Point_Tree<Library_10.Instrument>(tool);
-            Assert.AreEqual(p.ToString(), "");
-        }
-
-        //проеврка методов MyTree
-        [TestMethod]
-        public void TestFindMinRecursive_WhenRootIsNull_ShouldThrowException()
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>();
-
-            Assert.ThrowsException<Exception>(() => tree.FindMin(), "Дерево пусто. Не существует минимального значения.");
-        }
-
-        [TestMethod]
-        public void TestFindMin_OneNodeTree()
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>(1);
-            Instrument tool1 = new Instrument();
-            tool1 = tree.GetRoot();
-            Instrument min = tree.FindMin();
-            Assert.AreEqual(tool1, min);
-        }
-
-        [TestMethod]
-        public void TestFindMin_FullTree()
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>(1);
-            Instrument tool1 = new Instrument("E", 10);
-            Instrument tool2 = new Instrument("Er", 5);
-            Instrument tool3 = new Instrument("E", 20);
-            Instrument tool4 = new Instrument("Er", 3);
-            Instrument tool5 = new Instrument("E", 15);
-            tree.AddPoint(tool1);
-            tree.AddPoint(tool2);
-            tree.AddPoint(tool3);
-            tree.AddPoint(tool4);
-            tree.AddPoint(tool5);
-
-            Instrument min = tree.FindMin();
-
-            Assert.AreEqual(tool4, min);
-        }
-
-        [TestMethod]
-        public void Test_TransformOneNodeTree()
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>(1);
-            Instrument tool1 = new Instrument();
-            Instrument tool2 = new Instrument();
-
-            tool1 = tree.GetRoot();
-            tree.TransformToSearchTree();
-            tool2 = tree.GetRoot();
-            Assert.AreEqual(tool1, tool2);
-        }
-
-        [TestMethod]
-        public void Test_TransformFullNodeTree()
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>(1);
-            Instrument tool1 = new Instrument("E", 182);
-            Instrument tool2 = new Instrument("Er", 145);
-            Instrument tool3 = new Instrument("E", 198);
-            Instrument tool4 = new Instrument("Er", 185);
-            Instrument tool5 = new Instrument("E", 170);
-
-            tree.AddPoint(tool1);
-            tree.AddPoint(tool2);
-            tree.AddPoint(tool3);
-            tree.AddPoint(tool4);
-            tree.AddPoint(tool5);
-
-            tree.TransformToSearchTree();
-            tree.BalanceSearchTree();
-            Instrument toolRoot = tree.GetRoot();
-            Assert.AreEqual(tool5, toolRoot);
-        }
-
-        //тестирование методов удаления
-        [TestMethod]
-        public void Test_DeleteFullNodeTree() //проверка удаления элемента из заполненного дерева
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>(1);
-            MyTree<Instrument> treeNew = new MyTree<Instrument>(1);
-            Instrument toolFromTree1 = tree.GetRoot();
-            Instrument toolFromTreeNew = treeNew.GetRoot();
-
-            Instrument tool1 = new Instrument("E", 177);
-            Instrument tool2 = new Instrument("Er", 152);
-            Instrument tool3 = new Instrument("E", 124);
-            Instrument tool4 = new Instrument("Er", 108);
-            Instrument tool5 = new Instrument("E", 170);
-            Instrument tool6 = new Instrument("E", 171);
-
-            tree.AddPoint(tool1);
-            tree.AddPoint(tool2);
-            tree.AddPoint(tool3);
-            tree.AddPoint(tool4);
-            tree.AddPoint(tool5);
-            tree.AddPoint(tool6);
-            tree.RemoveElement(toolFromTree1);
-
-            treeNew = tree.TransformToSearchTree();
-            treeNew.BalanceSearchTree();
-            treeNew.RemoveElement(tool3);
-            treeNew.RemoveElement(toolFromTreeNew);
-            treeNew.BalanceSearchTree();
-            Instrument toolRoot = treeNew.GetRoot();
-            Assert.AreEqual(tool5, toolRoot);
-        }
-
-        [TestMethod]
-        public void Test_DeleteFullNodeTree_2() //проверка удаления элемента из заполненного дерева
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>(1);
-            MyTree<Instrument> treeNew = new MyTree<Instrument>(1);
-            Instrument toolFromTree1 = tree.GetRoot();
-            Instrument toolFromTreeNew = treeNew.GetRoot();
-
-            Instrument tool1 = new Instrument("E", 177);
-            Instrument tool2 = new Instrument("Er", 152);
-            Instrument tool3 = new Instrument("E", 124);
-            Instrument tool4 = new Instrument("Er", 108);
-
-            tree.AddPoint(tool1);
-            tree.AddPoint(tool2);
-            tree.AddPoint(tool3);
-            tree.AddPoint(tool4);
-            tree.RemoveElement(toolFromTree1);
-
-            treeNew = tree.TransformToSearchTree();
-            treeNew.BalanceSearchTree();
-            treeNew.RemoveElement(tool3);
-            treeNew.RemoveElement(toolFromTreeNew);
-            treeNew.BalanceSearchTree();
-            Instrument toolRoot = treeNew.GetRoot();
-            Assert.AreEqual(tool2, toolRoot);
-        }
-
-        [TestMethod]
-        public void Test_DeleteFullNodeTree_ExtremeObjectRight() //проверка удаления крайнего рпвого элемента из дерева
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>(1);
-            MyTree<Instrument> treeNew = new MyTree<Instrument>(1);
-            Instrument toolFromTree1 = tree.GetRoot();
-            Instrument toolFromTreeNew = treeNew.GetRoot();
-
-
-            Instrument tool1 = new Instrument("E", 177);
-            Instrument tool2 = new Instrument("Er", 152);
-            Instrument tool3 = new Instrument("E", 124);
-            Instrument tool4 = new Instrument("Er", 108);
-            tree.AddPoint(tool1);
-            tree.AddPoint(tool2);
-            tree.AddPoint(tool3);
-            tree.AddPoint(tool4);
-            tree.RemoveElement(toolFromTree1);
-
-            treeNew = tree.TransformToSearchTree();
-            treeNew.BalanceSearchTree();
-            treeNew.RemoveElement(tool4);
-            treeNew.RemoveElement(toolFromTreeNew);
-            treeNew.BalanceSearchTree();
-            Instrument toolRoot = treeNew.GetRoot();
-            Assert.AreEqual(tool2, toolRoot);
-        }
-
-        [TestMethod]
-        public void Test_DeleteFullNodeTree_ExtremeObjectLeft() //Проверка удаления крайнего элемента из дерева
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>(1);
-            Instrument toolFromTree1 = tree.GetRoot();
-
-
-            Instrument tool1 = new Instrument("E", 177);
-            Instrument tool2 = new Instrument("Er", 152);
-            tree.AddPoint(tool1);
-            tree.AddPoint(tool2);
-            tree.RemoveElement(toolFromTree1);
-            tree.RemoveElement(tool1);
-
-            Instrument toolRoot = tree.GetRoot();
-            Assert.AreEqual(tool2, toolRoot);
-        }
-
-        [TestMethod]
-        public void TestFindMaxValue_OneElement() //проверка работы метода FindMaxValue
-        {
-            // Создаем экземпляр дерева и добавляем в него элементы
-            MyTree<Instrument> tree = new MyTree<Instrument>(1);
-            Instrument tool1 = new Instrument("E", 177);
-            Instrument t = tree.GetRoot();
-
-            tree.AddPoint(tool1);
-
-            tree.RemoveElement(t);
-            Instrument toolRoot = tree.GetRoot();
-            Point_Tree<Instrument> root = new Point_Tree<Instrument>(toolRoot);
-            // Находим максимальное значение в дереве
-            Point_Tree<Instrument> maxNode = tree.FindMaxValue(root);
-
-            // Проверяем, что максимальное значение соответствует ожидаемому
-            Assert.AreEqual(tool1, maxNode.Data);
-        }
-
-        [TestMethod]
-        public void TestDeleteOneElementTree() //проверка удаления единственного элемента дерева 
-        {
-            MyTree<Instrument> tree = new MyTree<Instrument>(1);
-            Instrument t = tree.GetRoot();
-
-            tree.RemoveElement(t);
-            Assert.AreEqual(0, tree.Count);
-        }
     }
 }
