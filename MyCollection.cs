@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,22 +20,24 @@ namespace Лаба12_часть4
 
         int ICollection<T>.Count => base.Count;
 
-        public void Add(T item)
+        public void Add(T item) //добавление в коллекцию
         {
             AddPoint(item);
         }
 
-        public void Clear()
+        public void Clear() //очистка памяти
         {
             base.Clear();
+            count = 0;
+            this.table = null;
         }
 
-        public bool Contains(T item)
+        public bool Contains(T item) //проверка имеется ли элемент в коллекции
         {
             return base.Contains(item);
         }
 
-        public void CopyTo(T[] array, int arrayIndex)
+        public void CopyTo(T[] array, int arrayIndex) //копия элементов коллекции в массив
         {
             if (array == null) throw new Exception("empty collection");
             if (arrayIndex < 0) throw new Exception("индекс не может быть отрицательным или равным нулю");
@@ -50,7 +52,7 @@ namespace Лаба12_часть4
             }
         }
 
-        public bool Remove(T item)
+        public bool Remove(T item) //удаление
         {
             return base.RemoveData(item);
         }
