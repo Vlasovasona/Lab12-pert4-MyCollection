@@ -1,13 +1,14 @@
-﻿using Library_10;
+using Library_10;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace Лаба12_часть2
+namespace Лаба12_часть4
 {
     public class MyHashTable<T> where T: IInit, ICloneable, new()
     {
@@ -149,10 +150,17 @@ namespace Лаба12_часть2
             return false;
         }
 
-        public PointHash<T> GetFirstValue()
+        public PointHash<T> GetFirstValue() //метод для нахождения первого элемента хеш-таблицы (только для тестов)
         {
-            PointHash<T> p = table[0];
-            return p;
+            for (int i = 0; i < table.Length; i++)
+            {
+                if (table[i] != null) 
+                {
+                    PointHash<T> p = table[i];
+                    return p;
+                }
+            }
+            return null;
         }
 
         int GetIndex(T data) //получение ключа
@@ -160,7 +168,7 @@ namespace Лаба12_часть2
             return Math.Abs(data.GetHashCode()) % Capacity;
         }
 
-        public void Clear()
+        public void Clear() //метод для класса MyCollection
         {
             table = null;
             GC.Collect();
